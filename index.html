@@ -21,7 +21,13 @@
     rel="stylesheet"
     href="assets/css/styles.css?v=25"
   >
-  <link rel="stylesheet" href="assets/css/spa-ai-chat.css?v=1">
+  <link
+    rel="preload"
+    as="style"
+    href="assets/css/spa-ai-chat.css?v=1"
+    onload="this.onload=null;this.rel='stylesheet'"
+  >
+  <noscript><link rel="stylesheet" href="assets/css/spa-ai-chat.css?v=1"></noscript>
 
   <link
     rel="preload"
@@ -1045,11 +1051,29 @@
     </div>
   </footer>
 
-  <script src="assets/vendor/bootstrap/5.3.8/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/bootstrap/5.3.8/bootstrap.bundle.min.js" defer></script>
+  <script src="assets/js/main.js?v=25" defer></script>
+  <script src="assets/js/cal-treatments.js?v=8" defer></script>
+  <script>
+    (function loadSpaAssistantWhenIdle() {
+      function loadScript() {
+        if (document.querySelector('script[data-spa-ai-chat]')) return;
+        var script = document.createElement('script');
+        script.src = 'assets/js/spa-ai-chat.js?v=1';
+        script.defer = true;
+        script.setAttribute('data-spa-ai-chat', 'true');
+        document.body.appendChild(script);
+      }
 
-  <script src="assets/js/main.js?v=25"></script>
-  <script src="assets/js/spa-ai-chat.js?v=1" defer></script>
-  <script src="assets/js/cal-treatments.js?v=8"></script>
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadScript, { timeout: 2500 });
+      } else {
+        window.addEventListener('load', function () {
+          setTimeout(loadScript, 1000);
+        }, { once: true });
+      }
+    })();
+  </script>
 
 </body>
 </html>
