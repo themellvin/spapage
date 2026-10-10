@@ -21,6 +21,10 @@
   transform: scale(1.06);
   background-color: var(--forest-deep, #14271f);
 }
+#spa-ai-chat-btn:focus-visible {
+  outline: 3px solid var(--gold, #d8b875);
+  outline-offset: 3px;
+}
 #spa-ai-chat-btn svg {
   width: 28px;
   height: 28px;

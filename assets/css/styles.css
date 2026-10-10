@@ -144,7 +144,7 @@ p:last-child {
 }
 
 .link-gold {
-  color: #8f6d34;
+  color: #7b5d2a;
   font-weight: 700;
   text-decoration: none;
 }
@@ -502,7 +502,7 @@ nav.navbar.site-nav .navbar-toggler-icon::before {
 
 .treatment-number {
   margin-bottom: 0.55rem;
-  color: var(--gold-hover);
+  color: #7b5d2a;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.14em;

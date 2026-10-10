@@ -4,13 +4,13 @@
 
   // Inject UI
   const widgetHtml = `
-    <div id="spa-ai-chat-btn" title="Chat with Spa Concierge" aria-label="Open Spa Assistant">
+    <button id="spa-ai-chat-btn" type="button" title="Chat with Spa Concierge" aria-label="Open Spa Assistant" aria-controls="spa-ai-chat-window" aria-expanded="false">
       <svg viewBox="0 0 24 24">
         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
       </svg>
-    </div>
+    </button>
 
-    <div id="spa-ai-chat-window" role="dialog" aria-modal="true" aria-label="Spa Assistant Chat">
+    <div id="spa-ai-chat-window" role="dialog" aria-modal="true" aria-label="Spa Assistant Chat" aria-hidden="true">
       <div class="spa-chat-header">
         <div>
           <h4>
@@ -58,6 +58,8 @@
 
   function toggleChat() {
     const isOpen = chatWindow.classList.toggle('open');
+    chatBtn.setAttribute('aria-expanded', String(isOpen));
+    chatWindow.setAttribute('aria-hidden', String(!isOpen));
     if (isOpen) {
       chatInput.focus();
       scrollToBottom();
