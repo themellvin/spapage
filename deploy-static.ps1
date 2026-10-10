@@ -15,6 +15,11 @@ function Write-Step {
   Write-Host "==> $Message" -ForegroundColor Cyan
 }
 
+function Write-Warn {
+  param([string]$Message)
+  Write-Host "WARN: $Message" -ForegroundColor Yellow
+}
+
 function Invoke-Robocopy {
   param(
     [string]$From,
@@ -32,6 +37,40 @@ function Invoke-Robocopy {
 function Get-Sha256 {
   param([string]$Path)
   (Get-FileHash -Algorithm SHA256 -Path $Path).Hash
+}
+
+function Resolve-ApacheService {
+  param([string]$RequestedName)
+
+  if ($RequestedName) {
+    $exact = Get-Service -Name $RequestedName -ErrorAction SilentlyContinue
+    if ($exact) {
+      return $exact
+    }
+
+    function Test-LocalhostUrl {
+      param([string]$Url)
+      try {
+        $uri = [Uri]$Url
+        return $uri.Host -in @("localhost", "127.0.0.1")
+      }
+      catch {
+        return $false
+      }
+    }
+    Write-Warn "Service '$RequestedName' was not found. Attempting Apache service auto-detection."
+  }
+
+  $candidates = Get-Service | Where-Object {
+    $_.Name -match "apache|httpd|xampp" -or
+    $_.DisplayName -match "apache|httpd|xampp"
+  } | Sort-Object @{ Expression = { $_.Status -eq "Running" }; Descending = $true }, Name
+
+  if ($candidates.Count -gt 0) {
+    return $candidates[0]
+  }
+
+  return $null
 }
 
 function Test-LiveMarker {
@@ -89,13 +128,29 @@ $checksums = foreach ($relative in $keyFiles) {
 $checksums | Format-Table -AutoSize
 
 if ($PublishPath) {
+  if ($PublishPath -match "^[A-Za-z]:\\xampp\\htdocs" -and -not (Test-LocalhostUrl -Url $LiveBaseUrl)) {
+    Write-Warn "PublishPath appears local XAMPP ($PublishPath), but LiveBaseUrl is remote ($LiveBaseUrl). Live verification may fail unless this machine serves that domain."
+  }
+
   Write-Step "Publishing stage to live root: $PublishPath"
   New-Item -ItemType Directory -Path $PublishPath -Force | Out-Null
   Invoke-Robocopy -From $StagePath -To $PublishPath -RoboArgs @("/E", "/R:2", "/W:2")
 
   if ($RestartApache) {
-    Write-Step "Restarting Apache service: $ApacheServiceName"
-    Restart-Service -Name $ApacheServiceName -Force
+    Write-Step "Restarting Apache service"
+    $apacheService = Resolve-ApacheService -RequestedName $ApacheServiceName
+    if (-not $apacheService) {
+      Write-Warn "No Apache-like Windows service found. Skipping restart."
+    }
+    else {
+      Write-Host "Using service: $($apacheService.Name) [$($apacheService.DisplayName)]"
+      try {
+        Restart-Service -Name $apacheService.Name -Force -ErrorAction Stop
+      }
+      catch {
+        Write-Warn "Could not restart service '$($apacheService.Name)'. Run PowerShell as Administrator or restart service manually."
+      }
+    }
   }
 }
 else {
