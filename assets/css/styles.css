@@ -338,9 +338,23 @@ nav.navbar.site-nav .navbar-toggler-icon::before {
 .page-hero {
   position: relative;
   overflow: hidden;
-  background-image: url("../images/photo-1600334129128-685c5582fd35.jpg");
+  background-image: url("../images/photo-1600334129128-685c5582fd35-480.jpg");
   background-position: center;
   background-size: cover;
+}
+
+@media (min-width: 576px) {
+  .hero-section,
+  .page-hero {
+    background-image: url("../images/photo-1600334129128-685c5582fd35-768.jpg");
+  }
+}
+
+@media (min-width: 992px) {
+  .hero-section,
+  .page-hero {
+    background-image: url("../images/photo-1600334129128-685c5582fd35-1200.jpg");
+  }
 }
 
 .hero-section {
@@ -1020,4 +1034,3 @@ textarea.form-control {
 .text-secondary {
   color: #4d564f !important;
 }
-
